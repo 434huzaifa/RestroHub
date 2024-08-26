@@ -14,8 +14,6 @@ class RestaurantCreateSchema(Schema):
     phone_number:str="12345678901"
     description:str="Great restaurant with great test"
 
-class MessageSchema(Schema):
-    message:str|None
 
 class LoginResponseSchema(Schema):
     token:str

@@ -12,6 +12,7 @@ icecream = "*"
 django-ninja-extra = "*"
 django-ninja-jwt = "*"
 pyjwt = "*"
+ninja-schema = "*"
 
 [dev-packages]
 

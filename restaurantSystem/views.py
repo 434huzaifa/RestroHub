@@ -3,7 +3,8 @@ from .schema import *
 from icecream import ic
 from .models import *
 from userSystem.models import *
-from api.index import app,AuthBearer
+from api.schema import MessageSchema
+from api.utils import AuthBearer
 from django.utils.timezone import datetime
 
 # Create your views here.
@@ -41,4 +42,4 @@ class RestaurantAPI:
             return 400,{"message":"Owner not found!"}
     
     
-app.register_controllers(RestaurantAPI)
+

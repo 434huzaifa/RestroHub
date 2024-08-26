@@ -17,7 +17,7 @@ class Profile(models.Model):
 
 class Owner(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    restaurants = models.ManyToManyField(Restaurant, related_name="owners")
+    restaurants = models.ManyToManyField(Restaurant, related_name="owners",blank=True)
 
     def __str__(self):
         return f"{self.profile.name}"
