@@ -10,6 +10,7 @@ class UserSchema(ModelSchema):
         fields=['username']
 
 class ProfilesSchema(ModelSchema):
+    user:UserSchema
     class Meta:
         model=Profile
         fields = "__all__"
@@ -32,7 +33,7 @@ class OwnerSchemaWithoutRestaurants(ModelSchema):
         
 class EmployeeSchema(ModelSchema):
     profile:ProfilesSchema
-    restaurant:RestaurantSchema
+    restaurant:RestaurantSchema=None
     class Meta:
         model=Employee
         fields = "__all__"

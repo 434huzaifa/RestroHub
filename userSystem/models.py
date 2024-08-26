@@ -26,7 +26,7 @@ class Owner(models.Model):
 class Employee(models.Model):
     profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(
-        Restaurant, on_delete=models.CASCADE, related_name="employees"
+        Restaurant, on_delete=models.CASCADE, related_name="employees",blank=True,null=True
     )
 
     def __str__(self):

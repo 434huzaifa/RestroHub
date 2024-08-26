@@ -15,6 +15,3 @@ class RestaurantCreateSchema(Schema):
     description:str="Great restaurant with great test"
 
 
-class LoginResponseSchema(Schema):
-    token:str
-    expire:str
