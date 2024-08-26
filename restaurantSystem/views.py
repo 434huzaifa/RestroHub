@@ -1,43 +1,12 @@
-from ninja_extra import NinjaExtraAPI, api_controller, route
+from ninja_extra import api_controller, route
 from .schema import *
 from icecream import ic
 from .models import *
 from userSystem.models import *
-from ninja.security import HttpBearer
-import jwt
-from django.contrib.auth import authenticate
-from django.utils.timezone import datetime,timedelta
+from api.index import app,AuthBearer
+from django.utils.timezone import datetime
 
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
 # Create your views here.
-
-class AuthBearer(HttpBearer):
-    def authenticate(self, request, token):
-        if token:
-            try:
-                return ic(jwt.decode(token,getenv("PROJECT_SECRECT"),algorithms="HS256"))
-            except jwt.ExpiredSignatureError:
-                ic("Expired")
-
-app = NinjaExtraAPI(
-    title="RestroHub APIs",
-    description="A simple restaurant managing site. [Admin Panel](http://127.0.0.1:8000/admin)",
-    docs_url="/",
-    
-)
-
-@app.post("/headerkey",tags=['Authorization'],description="For testing purpose. \nusername: ` Enid21 `\npassword:` q `")
-def headerKey(request,username=None,password=None):
-
-    if username and password:
-        user=authenticate(request, username=username, password=password)
-        if user !=None:
-            ic(user.get_username())
-            timeExp=int((datetime.now()+timedelta(minutes=10)).timestamp())
-            return {"token":jwt.encode({'exp':timeExp,'username':user.get_username()},key=getenv("PROJECT_SECRECT")),"expired":(datetime.now()+timedelta(minutes=10)).strftime('%d/%m/%Y, %I:%M:%S %p')}
-    return 400,{"message":"username and password failed"}
 
 
 @api_controller("/restaurant", tags=["Restaurant"], permissions=[],auth=AuthBearer())
