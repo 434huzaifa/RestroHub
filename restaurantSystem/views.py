@@ -4,13 +4,13 @@ from icecream import ic
 from .models import *
 from userSystem.models import *
 from api.schema import MessageSchema
-from api.utils import AuthBearer
+from api.utils import AuthCookie
 from django.utils.timezone import datetime
 
 # Create your views here.
 
 
-@api_controller("/restaurant", tags=["Restaurant"], permissions=[],auth=AuthBearer())
+@api_controller("/restaurant", tags=["Restaurant"], permissions=[],auth=AuthCookie())
 class RestaurantAPI:
     @route.post(
         "",

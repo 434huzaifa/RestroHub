@@ -8,10 +8,12 @@ load_dotenv()
 
 code400and500=frozenset({400,500})
 
-class AuthBearer(APIKeyCookie):
+class AuthCookie(APIKeyCookie):
     def authenticate(self, request:HttpRequest,key):
         if key:
             try:
-                return jwt.decode(key,getenv("PROJECT_SECRECT"),algorithms="HS256")
+                decoded=jwt.decode(key,getenv("PROJECT_SECRECT"),algorithms="HS256")
+                ic(decoded)
+                return decoded
             except jwt.ExpiredSignatureError:
                 ic("Expired")

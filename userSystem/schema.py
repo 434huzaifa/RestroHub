@@ -53,3 +53,9 @@ class UserBodySchema(Schema):
     address:str|None=None
     name:str=Field(default="Hugh Man",max_length=100)
 
+class UserPatchBodySchema(Schema):
+    username:str=Field(max_length=50,default="darksoul434")
+    phone:str=Field(default="123456789",max_length=15)
+    address:str|None=None
+    name:str=Field(default="Hugh Man",max_length=100)
+
