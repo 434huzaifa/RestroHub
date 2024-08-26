@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 django = "*"
 django-ninja = "*"
+python-dotenv = "*"
+django-cors-headers = "*"
+icecream = "*"
+django-ninja-extra = "*"
 
 [dev-packages]
 
