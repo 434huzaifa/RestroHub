@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     "userSystem",
     "restaurantSystem",
     "menuSystem",
+    "orderSystem",
     "ninja_extra",
+    
 ]
 
 MIDDLEWARE = [

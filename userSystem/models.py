@@ -11,7 +11,7 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.id} | {self.name}"
 
 
 class Owner(models.Model):
@@ -19,7 +19,7 @@ class Owner(models.Model):
     restaurants = models.ManyToManyField(Restaurant, related_name="owners", blank=True)
 
     def __str__(self):
-        return f"{self.profile.name}"
+        return f"{self.id} | {self.profile.name}"
 
 
 class Employee(models.Model):
@@ -33,4 +33,4 @@ class Employee(models.Model):
     )
 
     def __str__(self):
-        return f"{self.profile.name}"
+        return f"{self.id} | {self.profile.name}"

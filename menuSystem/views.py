@@ -62,11 +62,10 @@ class MenuApi:
     def change_menu_name(
         self,
         request,
-        restaurant_id: int,
         menu_id: int,
     ):
         menu = Menu.objects.get(
-            id=menu_id, restaurant__id=restaurant_id
+            id=menu_id
         )
         message=f'{menu.name} has been deleted!'
         if not menu.restaurant.owners.filter(id=request.user.id).exists():
