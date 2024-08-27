@@ -1,11 +1,8 @@
 from ninja import ModelSchema, Schema, Field
 from menuSystem.models import *
-from restaurantSystem.models import Restaurant
+from restaurantSystem.schema import RestaurantIdNameSchema
 
-class RestaurantIdNameSchema(ModelSchema):
-    class Meta:
-        model=Restaurant
-        fields=['id','name']
+
 
 class ItemSchema(ModelSchema):
     class Meta:
@@ -31,6 +28,12 @@ class MenuWithoutRestaurantSchema(ModelSchema):
         model = Menu
         fields = "__all__"
         exclude=['restaurant']
+
+class MenuWithoutRestaurantItemsSchema(ModelSchema):
+    class Meta:
+        model = Menu
+        fields = "__all__"
+        exclude=['restaurant','items']
 
 class MenuChangeNameSchema(Schema):
     name:str=Field(max_length=100,default="Chessy Menu")

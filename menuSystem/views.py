@@ -18,18 +18,20 @@ class MenuApi:
     def create_menu(self, request: HttpRequest, body: MenuCreateSchema):
         data = body.model_dump()
         restaurant = Restaurant.objects.get(
-            id=data.get("restaurant_id"), owners=request.user
+            id=data.get("restaurant_id")
         )
-        if restaurant:
-            menu = Menu(restaurant=restaurant, name=data.get("name"))
-            menu.save()
-            for i in data.get("items"):
-                item = Item(name=i.get("name"), price=i.get("price"))
-                if i.get("description",None):
-                    item.description=i.get("description")
-                item.save()
-                menu.items.add(item)
-            return 201, menu
+        
+        if not restaurant.owners.filter(id=request.user.id).exists():
+            return 400,{"message":"You are not owner of this restaurant"}
+        menu = Menu(restaurant=restaurant, name=data.get("name"))
+        menu.save()
+        for i in data.get("items"):
+            item = Item(name=i.get("name"), price=i.get("price"))
+            if i.get("description",None):
+                item.description=i.get("description")
+            item.save()
+            menu.items.add(item)
+        return 201, menu
 
     @route.patch(
         "",
@@ -44,8 +46,11 @@ class MenuApi:
         menu_id: int,
     ):
         menu = Menu.objects.get(
-            id=menu_id, restaurant__id=restaurant_id, restaurant__owners=request.user
+            id=menu_id, restaurant__id=restaurant_id
         )
+        if not menu.restaurant.owners.filter(id=request.user.id).exists():
+            return 400,{"message":"You are not owner of this restaurant"}
+            
         menu.name = body.get("name")
         return 201, menu
     
@@ -61,9 +66,11 @@ class MenuApi:
         menu_id: int,
     ):
         menu = Menu.objects.get(
-            id=menu_id, restaurant__id=restaurant_id, restaurant__owners=request.user
+            id=menu_id, restaurant__id=restaurant_id
         )
         message=f'{menu.name} has been deleted!'
+        if not menu.restaurant.owners.filter(id=request.user.id).exists():
+            return 400,{"message":"You are not owner of this restaurant"}
         menu.delete()
         return 200, {"message":message}
 
@@ -83,7 +90,7 @@ class MenuApi:
 
     @route.get(
         "/all",
-        response={200: list[MenuWithoutRestaurantSchema], code400and500: MessageSchema},
+        response={200: list[MenuWithoutRestaurantItemsSchema], code400and500: MessageSchema},
         summary="Get All the menu of the restaurant",
         auth=None,
         permissions=[AllowAny]
@@ -101,13 +108,12 @@ class MenuApi:
         response={200: MessageSchema, code400and500: MessageSchema},
         summary="Delete single item from menu of a restaurant",
     )
-    def delete_item(self, request, restaurant_id: int, menu_id: int, item_id: int):
+    def delete_item(self, request, menu_id: int, item_id: int):
         item = Item.objects.get(
             id=item_id,
-            menus__id=menu_id,
-            menus__restaurant__id=restaurant_id,
-            menus__restaurant__owners=request.user,
         )
+        if not item.menus.get(id=menu_id).restaurant.owners.filter(id=request.user.id).exists():
+            return 400,{"message":"You are not owner of this retaurant"}
         item.delete()
         message = f"{item.name} deleted from menu!"
         return 200, {"message": message}
@@ -119,7 +125,11 @@ class MenuApi:
     )
     def add_item(self, request, body: ItemCreateSchema):
         data = body.model_dump()
-        menu = Menu.objects.get(id=data.get("menu_id"), restaurant__owners=request.user)
+        menu = Menu.objects.get(id=data.get("menu_id"))
+        
+        if not menu.restaurant.owners.filter(id=request.user.id).exists():
+            return 400,{"message":"You are not owner of this restaurant"}
+        
         item = Item(name=data.get("name"), price=data.get("price"))
         if data.get("description",None):
             item.description=data.get("description",None)
@@ -142,13 +152,14 @@ class MenuApi:
         item_id: int,
     ):
         if item_id:
-
             item = Item.objects.get(
                 id=item_id,
                 menus__id=menu_id,
                 menus__restaurant__id=restaurant_id,
-                menus__restaurant__owners=request.user,
             )
+            if not item.menus.get(id=menu_id).restaurant.owners.filter(id=request.user.id).exists():
+                return 400,{"message":"You are not an owner of this restaurant"}
+            
             if body.get("name", None):
                 item.name = body.get("name")
             if body.get("price", None):

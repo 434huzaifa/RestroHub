@@ -5,6 +5,7 @@ import jwt
 from os import getenv
 from dotenv import load_dotenv
 from userSystem.models import Owner,Employee
+
 load_dotenv()
 
 code400and500 = frozenset({400, 500})
@@ -27,5 +28,7 @@ class AuthCookie(APIKeyCookie):
                 request.user = emp[0]
             if request.user._meta.object_name not in ["Owner","Employee"]:
                 raise Exception("User is not and Owner or Employee. User is Alien.")
+            ic(request.user._meta.object_name)
+            ic(request.user.id)
             return decoded
 

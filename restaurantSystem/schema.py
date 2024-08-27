@@ -7,6 +7,10 @@ class RestaurantSchema(ModelSchema):
         model = Restaurant
         fields = "__all__"
 
+class RestaurantIdNameSchema(ModelSchema):
+    class Meta:
+        model=Restaurant
+        fields=['id','name']
 
 class RestaurantCreateSchema(Schema):
     opening_hours: str = "11:30"
@@ -14,3 +18,4 @@ class RestaurantCreateSchema(Schema):
     address: str = "Jatrabari,Dhaka"
     phone_number: str = "12345678901"
     description: str = "Great restaurant with great test"
+

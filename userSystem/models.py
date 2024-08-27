@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from restaurantSystem.models import Restaurant
-
 # Create your models here.
 
 

@@ -10,12 +10,12 @@ from django.utils.timezone import datetime
 from api.permission import OwnerOnly
 from django.http import HttpRequest
 from api.utils import code400and500
-
+from ninja_extra.permissions import AllowAny
 # Create your views here.
 
 
 @api_controller(
-    "/restaurant", tags=["Restaurant"], permissions=[OwnerOnly], auth=AuthCookie()
+    "/restaurant", tags=["Restaurant"], permissions=[OwnerOnly], auth=AuthCookie(False)
 )
 class RestaurantAPI:
     @route.post(
@@ -38,14 +38,11 @@ class RestaurantAPI:
 
     @route.get(
         "/myrestaurant",
-        response={200: list[RestaurantSchema], code400and500: MessageSchema},
+        response={200: list[RestaurantIdNameSchema], code400and500: MessageSchema},
         summary="List all the retaurant of the owner",
     )
     def get_all_my_restaurant(self, request: HttpRequest):
-        restaurant = Restaurant.objects.filter(
-            owners=request.user
-        )
-        return 200, restaurant[0]
+        return 200, request.user.restaurants
 
     @route.get(
         "",
@@ -55,27 +52,27 @@ class RestaurantAPI:
             404: MessageSchema,
             500: MessageSchema,
         },
+        summary="Get single restaurant information",
+        auth=None,
+        permissions=[AllowAny]
     )
-    def get(self, request: HttpRequest, restaurant_id: int):
-        restaurant = Restaurant.objects.filter(
-            id=restaurant_id, owners=request.user
+    def get(self,restaurant_id: int):
+        restaurant = Restaurant.objects.get(
+            id=restaurant_id
         )
-        if len(restaurant) != 0:
-            return 200, restaurant[0]
-        return 400, {"message": "Restaurant not found!"}
+        return 200, restaurant
 
     @route.delete("", response={200: MessageSchema, code400and500: MessageSchema})
     def delete_restaurant(self, request: HttpRequest, restaurant_id: int = None):
         if restaurant_id:
-            restaurant = Restaurant.objects.filter(
+            restaurant = Restaurant.objects.get(
                 id=restaurant_id,
-                owners=request.user,
             )
-            if len(restaurant) != 0:
-                message = f'{restaurant[0].name}"s data deleted'
-                restaurant[0].delete()
-                return 200, {"message": message}
-            return 400, {"message": "Restaurant not found!"}
+            if not restaurant.owners.filter(id=request.user.id).exists():
+                return 400,{"message":"You are not owner of this retaurent"}
+            message = f'{restaurant.name}"s data deleted'
+            restaurant.delete()
+            return 200, {"message": message}
         return 400, {"message": "Invalid id!"}
 
     @route.patch(
@@ -90,15 +87,13 @@ class RestaurantAPI:
         restaurant_id: int,
     ):
         if restaurant_id:
-            restaurant = Restaurant.objects.filter(
+            restaurant = Restaurant.objects.get(
                 id=restaurant_id,
-                owners=request.user,
             )
-            if len(restaurant) != 0:
-                restaurant = restaurant[0]
-                for i in body:
-                    setattr(restaurant, i, body[i])
-                restaurant.save()
-                return 201, restaurant
-            return 400, {"message": "Restaurant not found!"}
+            if not restaurant.owners.filter(id=request.user.id).exists():
+                return 400,{"message":"You are not owner of this restaurant"}
+            for i in body:
+                setattr(restaurant, i, body[i])
+            restaurant.save()
+            return 201, restaurant
         return 400, {"message": "Invalid id!"}
