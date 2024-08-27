@@ -30,14 +30,9 @@ class RestaurantAPI:
             data["opening_hours"] = datetime.strptime(
                 data["opening_hours"], "%H:%M"
             ).time()
-            owner = Owner.objects.filter(
-                profile__user__username=request.auth["username"]
-            )
-            if len(owner) != 0:
-                restaurant = Restaurant.objects.create(**data)
-                owner[0].restaurants.add(restaurant)
-                return 201, restaurant
-            return 400, {"message": "Owner not found!"}
+            restaurant = Restaurant.objects.create(**data)
+            request.user.restaurants.add(restaurant)
+            return 201, restaurant
         except Exception as e:
             return 500, {"message": str(e)}
 
@@ -48,7 +43,7 @@ class RestaurantAPI:
     )
     def get_all_my_restaurant(self, request: HttpRequest):
         restaurant = Restaurant.objects.filter(
-            owners__profile__user__username=request.auth["username"]
+            owners=request.user
         )
         return 200, restaurant[0]
 
@@ -63,7 +58,7 @@ class RestaurantAPI:
     )
     def get(self, request: HttpRequest, restaurant_id: int):
         restaurant = Restaurant.objects.filter(
-            id=restaurant_id, owners__profile__user__username=request.auth["username"]
+            id=restaurant_id, owners=request.user
         )
         if len(restaurant) != 0:
             return 200, restaurant[0]
@@ -74,7 +69,7 @@ class RestaurantAPI:
         if restaurant_id:
             restaurant = Restaurant.objects.filter(
                 id=restaurant_id,
-                owners__profile__user__username=request.auth["username"],
+                owners=request.user,
             )
             if len(restaurant) != 0:
                 message = f'{restaurant[0].name}"s data deleted'
@@ -97,7 +92,7 @@ class RestaurantAPI:
         if restaurant_id:
             restaurant = Restaurant.objects.filter(
                 id=restaurant_id,
-                owners__profile__user__username=request.auth["username"],
+                owners=request.user,
             )
             if len(restaurant) != 0:
                 restaurant = restaurant[0]

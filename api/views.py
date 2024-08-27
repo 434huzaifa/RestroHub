@@ -5,10 +5,13 @@ from django.contrib.auth import authenticate
 from django.utils.timezone import datetime, timedelta
 from restaurantSystem.views import RestaurantAPI
 from userSystem.views import UserAPI, EmployeeAPI
+from menuSystem.views import MenuApi
 from api.utils import code400and500
 from os import getenv
 from api.schema import *
 from dotenv import load_dotenv
+from django.core.exceptions import ObjectDoesNotExist
+from jwt import ExpiredSignatureError,InvalidTokenError
 
 load_dotenv()
 
@@ -51,7 +54,23 @@ def headerKey(
     except Exception as e:
         return 500, str(e)
 
+@app.exception_handler(ObjectDoesNotExist)
+def ObjectNotFound(request,exce):
+    return app.create_response(request,{"message":f"ObjectDoesNotExist:{exce}"},status=400)
+
+@app.exception_handler(Exception)
+def GlobalException(request,exce):
+    return app.create_response(request,{"message":f"Exception:{exce}"},status=500)
+
+@app.exception_handler(ExpiredSignatureError)
+def JwtExpire(request,exce):
+    return app.create_response(request,{"message":f"Expired:{exce}.excute /headerkey api again"},status=400)
+
+@app.exception_handler(InvalidTokenError)
+def JwtInvalidToken(request,exce):
+    return app.create_response(request,{"message":f"Invalid Token:{exce}.excute /headerkey api again"},status=400)
 
 app.register_controllers(RestaurantAPI)
 app.register_controllers(UserAPI)
 app.register_controllers(EmployeeAPI)
+app.register_controllers(MenuApi)
