@@ -17,7 +17,7 @@ app = NinjaExtraAPI(
     docs_url="/",
 )
 
-@app.post("/headerkey",tags=['Authorization'],description="For testing purpose. Enter username and password it will automatically set key in cookies. \n\nusername: ` Enid21 `\n\npassword:` q `",response={200:LoginResponseSchema,code400and500:MessageSchema})
+@app.post("/headerkey",tags=['Authorization'],description="For testing purpose. Enter username and password it will automatically set key in cookies. \n\nusername: ` Enid21 `\n\npassword:` q `",summary="Use this API first to use locked API.",response={200:LoginResponseSchema,code400and500:MessageSchema})
 def headerKey(request:HttpRequest,response:HttpResponse,username=None,password=None):
     try:
         if username and password:

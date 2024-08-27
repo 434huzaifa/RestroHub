@@ -16,6 +16,7 @@ def createProfie(model_dump) -> list:
     user = User.objects.create_user(
         username=UserData["username"], password=UserData["password"]
     )
+
     if user:
         profileData = model_dump(exclude=("password", "username"))
         profile = Profile(
@@ -32,7 +33,7 @@ def createProfie(model_dump) -> list:
     return [400, "User creation failed!"]
 
 
-@api_controller("/owner", tags=["Owner"])
+@api_controller("/owner", tags=["Owner"],auth=AuthCookie(),permissions=[OwnerOnly])
 class UserAPI:
     @route.post(
         "",
@@ -41,6 +42,8 @@ class UserAPI:
             400: MessageSchema,
             500: MessageSchema,
         },
+        auth=None,
+        permissions=None
     )
     def create_owner(self, body: UserBodySchema):
         try:
@@ -57,8 +60,6 @@ class UserAPI:
     @route.get(
         "",
         response={200: OwnerSchema, 400: MessageSchema, 500: MessageSchema},
-        auth=AuthCookie(),
-        permissions=[OwnerOnly],
     )
     def get_owner_information(self, request: HttpRequest):
         try:
@@ -74,8 +75,6 @@ class UserAPI:
     @route.patch(
         "",
         response={201: OwnerSchemaWithoutRestaurants, code400and500: MessageSchema},
-        auth=AuthCookie(False),
-        permissions=[OwnerOnly],
     )
     def update_owner(self, request: HttpRequest, body: PatchDict[UserPatchBodySchema]):
         owner = Owner.objects.filter(profile__user__username=request.auth["username"])
@@ -97,8 +96,6 @@ class UserAPI:
     @route.delete(
         "",
         response={200: MessageSchema, code400and500: MessageSchema},
-        auth=AuthCookie(),
-        permissions=[OwnerOnly],
     )
     def delete_owner_data(self, request: HttpRequest):
         owners = Owner.objects.filter(profile__user__username=request.auth["username"])
@@ -109,7 +106,7 @@ class UserAPI:
         return 400, {"message": "Owner not found!"}
 
 
-@api_controller("/employee", tags=["Employee"])
+@api_controller("/employee", tags=["Employee"],auth=AuthCookie())
 class EmployeeAPI:
     @route.post(
         "",
@@ -118,6 +115,7 @@ class EmployeeAPI:
             400: MessageSchema,
             500: MessageSchema,
         },
+        auth=None
     )
     def create_employee(self, body: UserBodySchema):
         try:
@@ -134,7 +132,6 @@ class EmployeeAPI:
     @route.get(
         "",
         response={200: EmployeeSchema, 400: MessageSchema, 500: MessageSchema},
-        auth=AuthCookie(),
     )
     def get_employee_information(self, request: HttpRequest):
         try:
@@ -150,7 +147,6 @@ class EmployeeAPI:
     @route.delete(
         "",
         response={200: MessageSchema, code400and500: MessageSchema},
-        auth=AuthCookie(),
     )
     def delete_employee_data(self, request: HttpRequest):
         emps = Employee.objects.filter(profile__user__username=request.auth["username"])
@@ -163,7 +159,6 @@ class EmployeeAPI:
     @route.patch(
         "",
         response={201: EmployeeSchemaWithoutRestaurants, code400and500: MessageSchema},
-        auth=AuthCookie(False),
     )
     def update_employee(self, request: HttpRequest, body: PatchDict[UserPatchBodySchema]):
         emp = Employee.objects.filter(profile__user__username=request.auth["username"])

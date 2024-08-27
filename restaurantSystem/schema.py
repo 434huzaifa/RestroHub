@@ -8,7 +8,6 @@ class RestaurantSchema(ModelSchema):
 
 class RestaurantCreateSchema(Schema):
     opening_hours:str="11:30"
-    owner_id:int|str=1
     name:str="Sultan Dine"
     address:str="Jatrabari,Dhaka"
     phone_number:str="12345678901"
