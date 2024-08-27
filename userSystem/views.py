@@ -33,7 +33,7 @@ def createProfie(model_dump) -> list:
     return [400, "User creation failed!"]
 
 
-@api_controller("/owner", tags=["Owner"],auth=AuthCookie(),permissions=[OwnerOnly])
+@api_controller("/owner", tags=["Owner"], auth=AuthCookie(), permissions=[OwnerOnly])
 class UserAPI:
     @route.post(
         "",
@@ -43,7 +43,7 @@ class UserAPI:
             500: MessageSchema,
         },
         auth=None,
-        permissions=None
+        permissions=None,
     )
     def create_owner(self, body: UserBodySchema):
         try:
@@ -59,7 +59,11 @@ class UserAPI:
 
     @route.get(
         "",
-        response={200: OwnerSchema, 400: MessageSchema, 500: MessageSchema},
+        response={
+            200: OwnerSchemaWithoutRestaurants,
+            400: MessageSchema,
+            500: MessageSchema,
+        },
     )
     def get_owner_information(self, request: HttpRequest):
         try:
@@ -80,15 +84,15 @@ class UserAPI:
         owner = Owner.objects.filter(profile__user__username=request.auth["username"])
         if len(owner) != 0:
             owner = owner[0]
-            if body.get("username",None):
-                owner.profile.user.username=body.save()
+            if body.get("username", None):
+                owner.profile.user.username = body.save()
                 owner.profile.user.save()
-            if body.get("phone",None):
-                owner.profile.phone=body['phone']
-            if body.get("address",None):
-                owner.profile.address=body["address"]
-            if body.get("name",None):
-                owner.profile.name=body['name']
+            if body.get("phone", None):
+                owner.profile.phone = body["phone"]
+            if body.get("address", None):
+                owner.profile.address = body["address"]
+            if body.get("name", None):
+                owner.profile.name = body["name"]
             owner.profile.save()
             return 201, owner
         return 400, {"message": "Owner not found!"}
@@ -106,7 +110,7 @@ class UserAPI:
         return 400, {"message": "Owner not found!"}
 
 
-@api_controller("/employee", tags=["Employee"],auth=AuthCookie())
+@api_controller("/employee", tags=["Employee"], auth=AuthCookie())
 class EmployeeAPI:
     @route.post(
         "",
@@ -115,7 +119,7 @@ class EmployeeAPI:
             400: MessageSchema,
             500: MessageSchema,
         },
-        auth=None
+        auth=None,
     )
     def create_employee(self, body: UserBodySchema):
         try:
@@ -155,24 +159,26 @@ class EmployeeAPI:
             emps[0].delete()
             return 200, {"message": message}
         return 400, {"message": "Employee not found!"}
-    
+
     @route.patch(
         "",
         response={201: EmployeeSchemaWithoutRestaurants, code400and500: MessageSchema},
     )
-    def update_employee(self, request: HttpRequest, body: PatchDict[UserPatchBodySchema]):
+    def update_employee(
+        self, request: HttpRequest, body: PatchDict[UserPatchBodySchema]
+    ):
         emp = Employee.objects.filter(profile__user__username=request.auth["username"])
         if len(emp) != 0:
             emp = emp[0]
-            if body.get("username",None):
-                emp.profile.user.username=body.save()
+            if body.get("username", None):
+                emp.profile.user.username = body.save()
                 emp.profile.user.save()
-            if body.get("phone",None):
-                emp.profile.phone=body['phone']
-            if body.get("address",None):
-                emp.profile.address=body["address"]
-            if body.get("name",None):
-                emp.profile.name=body['name']
+            if body.get("phone", None):
+                emp.profile.phone = body["phone"]
+            if body.get("address", None):
+                emp.profile.address = body["address"]
+            if body.get("name", None):
+                emp.profile.name = body["name"]
             emp.profile.save()
             return 201, emp
         return 400, {"message": "Employee not found!"}
