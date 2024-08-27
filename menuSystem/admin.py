@@ -1,5 +1,5 @@
 from django.contrib import admin
-from orderSystem.models import *
+from menuSystem.models import *
 # Register your models here.
 
 admin.site.register(Item)
