@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import *
-
+from api.admin import ExtendAdmin
 # Register your models here.
 
-admin.site.register(Profile)
-admin.site.register(Owner)
-admin.site.register(Employee)
+admin.site.register(Profile,ExtendAdmin)
+admin.site.register(Owner,ExtendAdmin)
+admin.site.register(Employee,ExtendAdmin)

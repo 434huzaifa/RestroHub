@@ -36,7 +36,7 @@ def headerKey(
         if username and password:
             user = authenticate(request, username=username, password=password)
             if user != None:
-                timeExp = int((datetime.now() + timedelta(minutes=10)).timestamp())
+                timeExp = int((datetime.now() + timedelta(hours=1)).timestamp())
                 token = jwt.encode(
                     {"exp": timeExp, "username": user.get_username()},
                     key=getenv("PROJECT_SECRECT"),
@@ -46,7 +46,7 @@ def headerKey(
                 )
                 return 200, {
                     "token": token,
-                    "expired": (datetime.now() + timedelta(minutes=10)).strftime(
+                    "expired": (datetime.now() + timedelta(hours=1)).strftime(
                         "%d/%m/%Y, %I:%M:%S %p"
                     ),
                 }
