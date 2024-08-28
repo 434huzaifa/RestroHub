@@ -24,7 +24,7 @@ load_dotenv()
 
 app = NinjaExtraAPI(
     title="RestroHub APIs",
-    description="A simple restaurant managing site. [Admin Panel](http://127.0.0.1:8000/admin)",
+    description="A simple restaurant managing backend site. [Admin Panel](http://127.0.0.1:8000/admin) (**only localhost**)\n\n username: ` admin `  \n\n password: ` admin@example.com `",
     docs_url="/",
 )
 

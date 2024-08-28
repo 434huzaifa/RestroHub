@@ -14,13 +14,14 @@ from api.permission import OwnerOrEmployeeCheck
 # Create your views here.
 load_dotenv()
 
-stripe.api_key = getenv("STRIPE_SEC_KEY")
+
 
 
 @api_controller("/payment", tags=["Payment"], auth=AuthCookie(False))
 class PaymentAPI:
-    @route.get("", response={200: UrlSchema, code400and500: MessageSchema})
+    @route.get("", response={200: UrlSchema, code400and500: MessageSchema},description="Response will have a generated link. you can enter the link in browser address without quotation mark to use the link. You will need internet connection",summary="Stripe checkout API")
     def checkout(self, request, order_id: int):
+        stripe.api_key = getenv("STRIPE_SEC_KEY")
         order = Order.objects.get(id=order_id)
         if OwnerOrEmployeeCheck(order.restaurant,request):
             t_lite_items = []
@@ -86,9 +87,10 @@ class PaymentAPI:
             return 200, {"url":checkout_session.url}
         return 400, {"message": "Owner or Employee mismatch with Restaurant"}
     
-    @route.get("/success",response={200:PaymentSchema,code400and500:MessageSchema})
+    @route.get("/success",response={200:PaymentSchema,code400and500:MessageSchema},description="Generally this should a frontend route. But...",summary="Stripe checkout success route")
     def success(self,request,session_id:str):
         if session_id:
+            stripe.api_key = getenv("STRIPE_SEC_KEY")
             session = stripe.checkout.Session.retrieve(session_id)
             order=Order.objects.get(id=int(session.metadata.get('order_id')))
             payment=Payment(order=order,payment_id=session.id,email=session.customer_email,amount=session.amount_total,status="Paid")
@@ -96,9 +98,10 @@ class PaymentAPI:
             return 200,payment
         return 400,{"message":"Invalid Sessionid"}
     
-    @route.get("/cancel")
+    @route.get("/cancel",description="Generally this should a frontend route. But...",summary="Stripe checkout cancel/not paid route")
     def cancel(self,request,session_id:str):
         if session_id:
+            stripe.api_key = getenv("STRIPE_SEC_KEY")
             session = stripe.checkout.Session.retrieve(session_id)
             order=Order.objects.get(id=int(session.metadata.get('order_id')))
             payment=Payment(order=order,payment_id=session.id,email=session.customer_email,amount=session.amount_total,status="Unpaid")
