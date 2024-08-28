@@ -11,6 +11,7 @@ from api.permission import OwnerOnly
 from django.http import HttpRequest
 from api.utils import code400and500
 from ninja_extra.permissions import AllowAny
+
 # Create your views here.
 
 
@@ -53,12 +54,10 @@ class RestaurantAPI:
             500: MessageSchema,
         },
         summary="Get single restaurant information",
-        permissions=[AllowAny]
+        permissions=[AllowAny],
     )
-    def get_a_restaurant(self,restaurant_id: int):
-        restaurant = Restaurant.objects.get(
-            id=restaurant_id
-        )
+    def get_a_restaurant(self, restaurant_id: int):
+        restaurant = Restaurant.objects.get(id=restaurant_id)
         return 200, restaurant
 
     @route.delete("", response={200: MessageSchema, code400and500: MessageSchema})
@@ -68,7 +67,7 @@ class RestaurantAPI:
             if restaurant.owners.filter(id=request.user.id).exists():
                 message = f'{restaurant.name}"s data deleted'
                 return 200, {"message": message}
-            return 400,{"message":"You are not owner of this retaurent"}
+            return 400, {"message": "You are not owner of this retaurent"}
         return 400, {"message": "Invalid id!"}
 
     @route.patch(
@@ -87,9 +86,9 @@ class RestaurantAPI:
                 id=restaurant_id,
             )
             if not restaurant.owners.filter(id=request.user.id).exists():
-                return 400,{"message":"You are not owner of this restaurant"}
-            for i in body:
-                setattr(restaurant, i, body[i])
+                return 400, {"message": "You are not owner of this restaurant"}
+            for key, value in body:
+                setattr(restaurant, key, value)
             restaurant.save()
             return 201, restaurant
         return 400, {"message": "Invalid id!"}

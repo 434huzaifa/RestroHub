@@ -89,14 +89,18 @@ def PrintErrorWithTrace():
 def ObjectNotFound(request, exce):
     PrintErrorWithTrace()
     return app.create_response(
-        request, {"message": f"Invalid id for {str(exce).split(" ")[0]} ＞︿＜"}, status=404
+        request,
+        {"message": f"Invalid id for {str(exce).split(" ")[0]} ＞︿＜"},
+        status=404,
     )
 
 
 @app.exception_handler(Exception)
 def GlobalException(request, exce):
     PrintErrorWithTrace()
-    return app.create_response(request, {"message": f"Erro: {exce}. ¯\_(ツ)_/¯"}, status=500)
+    return app.create_response(
+        request, {"message": f"Erro: {exce}. ¯\_(ツ)_/¯"}, status=500
+    )
 
 
 @app.exception_handler(ExpiredSignatureError)

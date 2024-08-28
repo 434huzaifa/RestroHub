@@ -13,7 +13,7 @@ from api.utils import code400and500
 
 
 def createProfie(body) -> list:
-    UserData =body.model_dump(include=("password", "username"))
+    UserData = body.model_dump(include=("password", "username"))
     user = User.objects.create_user(
         username=UserData["username"], password=UserData["password"]
     )
@@ -69,7 +69,6 @@ class UserAPI:
     def get_owner_information(self, request: HttpRequest):
         return 200, request.user
 
-
     @route.patch(
         "",
         response={201: OwnerSchemaWithoutRestaurants, code400and500: MessageSchema},
@@ -79,12 +78,9 @@ class UserAPI:
         if body.get("username", None):
             owner.profile.user.username = body.save()
             owner.profile.user.save()
-        if body.get("phone", None):
-            owner.profile.phone = body["phone"]
-        if body.get("address", None):
-            owner.profile.address = body["address"]
-        if body.get("name", None):
-            owner.profile.name = body["name"]
+        body.pop("username")
+        for key, value in body:
+            setattr(owner, key, value)
         owner.profile.save()
         return 201, owner
 
@@ -128,7 +124,6 @@ class EmployeeAPI:
     def get_employee_information(self, request: HttpRequest):
         return 200, request.user
 
-
     @route.delete(
         "",
         response={200: MessageSchema, code400and500: MessageSchema},
@@ -149,11 +144,8 @@ class EmployeeAPI:
         if body.get("username", None):
             emp.profile.user.username = body.save()
             emp.profile.user.save()
-        if body.get("phone", None):
-            emp.profile.phone = body["phone"]
-        if body.get("address", None):
-            emp.profile.address = body["address"]
-        if body.get("name", None):
-            emp.profile.name = body["name"]
+        body.pop("username")
+        for key, value in body:
+            setattr(emp, key, value)
         emp.profile.save()
         return 201, emp

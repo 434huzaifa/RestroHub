@@ -9,6 +9,7 @@ from api.schema import MessageSchema
 from api.utils import AuthCookie, code400and500
 from menuSystem.schema import *
 from restaurantSystem.models import Restaurant
+
 # Create your views here.
 
 
@@ -21,19 +22,18 @@ class MenuApi:
         if restaurant.owners.filter(id=request.user.id).exists():
             menu = Menu(name=data.get("name"))
             menu.save()
-            t_items=[]
+            t_items = []
             for i in data.get("items"):
                 item = Item(name=i.get("name"), price=i.get("price"))
-                if i.get("description",None):
-                    item.description=i.get("description")
+                if i.get("description", None):
+                    item.description = i.get("description")
                 item.save()
                 t_items.append(item)
             menu.items.set(t_items)
             menu.save()
             restaurant.menus.add(menu)
             return 201, menu
-        return 400,{"message":"You are not owner of this restaurant"}
-        
+        return 400, {"message": "You are not owner of this restaurant"}
 
     @route.patch(
         "",
@@ -47,16 +47,13 @@ class MenuApi:
         restaurant_id: int,
         menu_id: int,
     ):
-        restaurant=Restaurant.objects.get(id=restaurant_id)
-        
+        restaurant = Restaurant.objects.get(id=restaurant_id)
         if restaurant.owners.filter(id=request.user.id).exists():
-            menu=restaurant.menus.get(id=menu_id)
+            menu = restaurant.menus.get(id=menu_id)
             menu.name = body.get("name")
             return 201, menu
-        return 400,{"message":"You are not owner of this restaurant"}
-            
-        
-    
+        return 400, {"message": "You are not owner of this restaurant"}
+
     @route.delete(
         "",
         response={200: MessageSchema, code400and500: MessageSchema},
@@ -68,26 +65,26 @@ class MenuApi:
         menu_id: int,
         restaurant_id: int,
     ):
-        restaurant=Restaurant.objects.get(id=restaurant_id)
+        restaurant = Restaurant.objects.get(id=restaurant_id)
         if restaurant.owners.filter(id=request.user.id).exists():
-            menu=restaurant.menus.get(id=menu_id)
-            message=f'{menu.name} has been deleted!'  
+            menu = restaurant.menus.get(id=menu_id)
+            message = f"{menu.name} has been deleted!"
             for i in menu.items.filter():
                 i.delete()
             menu.delete()
-            return 200, {"message":message}
-        return 400,{"message":"You are not owner of this restaurant"}
+            return 200, {"message": message}
+        return 400, {"message": "You are not owner of this restaurant"}
 
     @route.get(
         "",
         response={200: MenuSchema, code400and500: MessageSchema},
         summary="Get Single Menu",
         auth=None,
-        permissions=[AllowAny]
+        permissions=[AllowAny],
     )
     def get_single_menu(self, menu_id: int, restaurant_id: int):
-        restaurant=Restaurant.objects.get(id=restaurant_id)
-        menu = menu=restaurant.menus.get(id=menu_id)
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+        menu = menu = restaurant.menus.get(id=menu_id)
         return 200, menu
 
     @route.get(
@@ -95,32 +92,30 @@ class MenuApi:
         response={200: list[MenuWithoutItemSchema], code400and500: MessageSchema},
         summary="Get All the menu of the restaurant",
         auth=None,
-        permissions=[AllowAny]
+        permissions=[AllowAny],
     )
     def get_all_the_menu(self, restaurant_id: int):
         if restaurant_id:
-            restaurant=Restaurant.objects.get(id=restaurant_id)
+            restaurant = Restaurant.objects.get(id=restaurant_id)
             return 200, restaurant.menus
         return 400, {"message": "Invalid Id"}
-    
 
     @route.delete(
         "/item",
         response={200: MessageSchema, code400and500: MessageSchema},
         summary="Delete single item from menu of a restaurant",
     )
-    def delete_item(self, request, menu_id: int, item_id: int,restaurant_id: int):
-        restaurant=Restaurant.objects.get(id=restaurant_id)
-        menu=restaurant.menus.get(id=menu_id)
+    def delete_item(self, request, menu_id: int, item_id: int, restaurant_id: int):
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+        menu = restaurant.menus.get(id=menu_id)
         item = menu.items.get(id=item_id)
         if restaurant.owners.filter(id=request.user.id).exists():
             item.delete()
             message = f"{item.name} deleted from menu!"
-            if menu.items.count()==0:
+            if menu.items.count() == 0:
                 menu.delete()
             return 200, {"message": message}
-        return 400,{"message":"You are not owner of this retaurant"}
-
+        return 400, {"message": "You are not owner of this retaurant"}
 
     @route.post(
         "/item",
@@ -129,19 +124,17 @@ class MenuApi:
     )
     def add_item(self, request, body: ItemCreateSchema):
         data = body.model_dump()
-        restaurant=Restaurant.objects.get(id=data.get("restaurant_id"))
+        restaurant = Restaurant.objects.get(id=data.get("restaurant_id"))
         menu = restaurant.menus.get(id=data.get("menu_id"))
         if restaurant.owners.filter(id=request.user.id).exists():
             item = Item(name=data.get("name"), price=data.get("price"))
-            if data.get("description",None):
-                item.description=data.get("description",None)
+            if data.get("description", None):
+                item.description = data.get("description", None)
             item.save()
             menu.items.add(item)
             menu.save()
             return 201, menu.items
-        return 400,{"message":"You are not owner of this restaurant"}
-        
-
+        return 400, {"message": "You are not owner of this restaurant"}
 
     @route.patch(
         "/item",
@@ -157,17 +150,13 @@ class MenuApi:
         item_id: int,
     ):
         if item_id:
-            restaurant=Restaurant.objects.get(id=restaurant_id)
-            menu=restaurant.menus.get(id=menu_id)
-            item = menu.items.get(id=item_id)
+            restaurant = Restaurant.objects.get(id=restaurant_id)
             if restaurant.owners.filter(id=request.user.id).exists():
-                if body.get("name", None):
-                    item.name = body.get("name")
-                if body.get("price", None):
-                    item.price = body.get("price")
-                if body.get("description",None):
-                    item.description = body.get("description")
+                menu = restaurant.menus.get(id=menu_id)
+                item = menu.items.get(id=item_id)
+                for key, value in body:
+                    setattr(item, key, value)
                 item.save()
                 return 201, item
-            return 400,{"message":"You are not an owner of this restaurant"}
+            return 400, {"message": "You are not an owner of this restaurant"}
         return 400, {"message": "Invalid ID"}
