@@ -18,6 +18,7 @@ from menuSystem.views import MenuApi
 from restaurantSystem.views import RestaurantAPI
 from userSystem.views import EmployeeAPI, UserAPI
 from orderSystem.views import OrderAPI
+from paymentSystem.views import PaymentAPI
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ app = NinjaExtraAPI(
 @app.post(
     "/login",
     tags=["Authorization"],
-    description="For testing purpose. Enter username and password it will automatically set key in cookies. \n\nusername: ` Enid21 `\n\npassword:` q `",
+    description="For testing purpose. Enter username and password it will automatically set key in cookies. \n\nusername: ` owner1 `\n\npassword:` q `",
     summary="Use this API first to use locked API.",
     response={200: LoginResponseSchema, code400and500: MessageSchema},
 )
@@ -126,3 +127,4 @@ app.register_controllers(UserAPI)
 app.register_controllers(EmployeeAPI)
 app.register_controllers(MenuApi)
 app.register_controllers(OrderAPI)
+app.register_controllers(PaymentAPI)

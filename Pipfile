@@ -13,6 +13,8 @@ django-ninja-extra = "*"
 django-ninja-jwt = "*"
 pyjwt = "*"
 ninja-schema = "*"
+stripe = "*"
+currencyconverter = "*"
 
 [dev-packages]
 

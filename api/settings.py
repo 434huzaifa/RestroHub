@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "restaurantSystem",
     "menuSystem",
     "orderSystem",
+    "paymentSystem",
     "ninja_extra",
 ]
 

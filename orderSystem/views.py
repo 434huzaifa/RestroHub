@@ -1,28 +1,15 @@
-from django.http import HttpRequest
 from icecream import ic
 from ninja import PatchDict
 from ninja_extra import api_controller, route
-from ninja_extra.permissions import AllowAny
 
-from api.permission import OwnerOnly, ValidUserForRestaurant
 from api.schema import MessageSchema
 from api.utils import AuthCookie, code400and500
 from orderSystem.schema import *
 from orderSystem.models import *
-from menuSystem.models import Item
 from restaurantSystem.models import Restaurant
-
+from api.permission import OwnerOrEmployeeCheck
 
 # Create your views here.
-
-
-def OwnerOrEmployeeCheck(restaurant: Restaurant, request) -> bool:
-    isOwnerOrEmployee = False
-    if request.user._meta.object_name == "Owner":
-        isOwnerOrEmployee = restaurant.owners.filter(id=request.user.id).exists()
-    else:
-        isOwnerOrEmployee = restaurant.employees.filter(id=request.user.id).exists()
-    return isOwnerOrEmployee
 
 
 @api_controller("/order", tags=["Order"], auth=AuthCookie(False))
