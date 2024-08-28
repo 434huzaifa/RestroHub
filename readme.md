@@ -28,6 +28,23 @@ if you already have `pipenv` then you dont need this step
 pip install pipenv
 ```
 
+I am using python3.12 thats why instead of `python` i am writing `py`
+
+```
+pipenv run py manage.py makemigrations
+```
+
+```
+pipenv run py manage.py migrate
+```
+
+if you want to populate database with data
+
+```
+pipenv run py manage.py loaddata data.json
+```
+
+
 ```
 pipenv run py manage.py runserver
 ```
