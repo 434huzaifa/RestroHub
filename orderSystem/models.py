@@ -18,7 +18,6 @@ class Order(models.Model):
         Restaurant, related_name="restaurant", on_delete=models.CASCADE
     )
     items = models.ManyToManyField(OrderRow, related_name="orders", blank=True)
-    totalPrice = models.FloatField(default=0)
     name = models.CharField(max_length=100, null=True, default=None)
     phone = models.CharField(max_length=15)
     description = models.TextField(default=None, null=True)

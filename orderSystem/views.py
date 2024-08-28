@@ -25,16 +25,14 @@ class OrderAPI:
         if OwnerOrEmployeeCheck(restaurant, request):
             menu = restaurant.menus.get(id=data.get("menu_id"))
             orderRows = []
-            t_totalPrice = 0.0
             for i in data.get("items"):
                 item = menu.items.get(id=i.get("item_id"))
                 orderRow = OrderRow(item=item, quantity=i.get("quantity"))
                 orderRow.save()
-                t_totalPrice += i.get("quantity") * item.price
                 orderRows.append(orderRow)
 
             order = Order(
-                totalPrice=t_totalPrice, restaurant=restaurant, phone=data.get("phone")
+                 restaurant=restaurant, phone=data.get("phone")
             )
             if data.get("name", None):
                 order.name = data.get("name")
@@ -84,7 +82,6 @@ class OrderAPI:
             item = menu.items.get(id=data.get("item_id"))
             orderRow = OrderRow(item=item, quantity=data.get("quantity"))
             orderRow.save()
-            order.totalPrice += data.get("quantity") * item.price
             order.items.add(orderRow)
             order.save()
             return 400, {"message": "Item does not belong to the restaurant"}
@@ -99,7 +96,6 @@ class OrderAPI:
         order = Order.objects.get(id=order_id)
         if OwnerOrEmployeeCheck(order.restaurant, request):
             orderRow = OrderRow.objects.get(id=items_id)
-            order.totalPrice -= orderRow.item.price
             order.items.remove(orderRow)
             orderRow.delete()
             if order.items.count() == 0:
