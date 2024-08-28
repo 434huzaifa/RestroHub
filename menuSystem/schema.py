@@ -1,8 +1,5 @@
 from ninja import ModelSchema, Schema, Field
 from menuSystem.models import *
-from restaurantSystem.schema import RestaurantIdNameSchema
-
-
 
 class ItemSchema(ModelSchema):
     class Meta:
@@ -16,31 +13,26 @@ class ItemPatchSchema(ModelSchema):
         exclude=["id"]
 
 class MenuSchema(ModelSchema):
-    restaurant: RestaurantIdNameSchema
     items: list[ItemSchema]
     class Meta:
         model = Menu
         fields = "__all__"
 
-class MenuWithoutRestaurantSchema(ModelSchema):
-    items: list[ItemSchema]
+class MenuIdNameSchema(ModelSchema):
     class Meta:
         model = Menu
-        fields = "__all__"
-        exclude=['restaurant']
+        fields = ["id","name"]
 
-class MenuWithoutRestaurantItemsSchema(ModelSchema):
+class MenuWithoutItemsSchema(ModelSchema):
     class Meta:
         model = Menu
         fields = "__all__"
-        exclude=['restaurant','items']
+        exclude=['items']
 
 class MenuChangeNameSchema(Schema):
     name:str=Field(max_length=100,default="Chessy Menu")
 
 class MenuWithoutItemSchema(ModelSchema):
-    restaurant: RestaurantIdNameSchema
-
     class Meta:
         model = Menu
         fields = "__all__"

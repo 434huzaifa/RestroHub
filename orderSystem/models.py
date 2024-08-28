@@ -1,5 +1,6 @@
 from django.db import models
 from menuSystem.models import Item
+from restaurantSystem.models import Restaurant
 # Create your models here.
 
 class OrderRow(models.Model):
@@ -10,8 +11,9 @@ class OrderRow(models.Model):
         return f'{self.id} | {self.item.name} | {self.quantity}'
     
 class Order(models.Model):
+    restaurant=models.ForeignKey(Restaurant,related_name="restaurant",on_delete=models.CASCADE)
     items=models.ManyToManyField(OrderRow,related_name="orders",blank=True)
-    totalPrice=models.FloatField()
+    totalPrice=models.FloatField(default=0)
     name=models.CharField(max_length=100,null=True,default=None)
     phone=models.CharField(max_length=15)
     description=models.TextField(default=None,null=True)

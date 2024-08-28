@@ -1,8 +1,9 @@
 from ninja import ModelSchema, Schema
 from .models import Restaurant
-
+from menuSystem.schema import MenuIdNameSchema
 
 class RestaurantSchema(ModelSchema):
+    menus:list[MenuIdNameSchema]
     class Meta:
         model = Restaurant
         fields = "__all__"
