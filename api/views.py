@@ -99,7 +99,7 @@ def ObjectNotFound(request, exce):
 def GlobalException(request, exce):
     PrintErrorWithTrace()
     return app.create_response(
-        request, {"message": f"Erro: {exce}. ¯\_(ツ)_/¯"}, status=500
+        request, {"message": f"Erro: {exce}. ¯\\_(ツ)_/¯"}, status=500
     )
 
 
