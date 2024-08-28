@@ -4,7 +4,7 @@ from ninja import PatchDict
 from ninja_extra import api_controller, route
 from ninja_extra.permissions import AllowAny
 
-from api.permission import OwnerOnly
+from api.permission import OwnerOnly,ValidUserForRestaurant
 from api.schema import MessageSchema
 from api.utils import AuthCookie, code400and500
 from orderSystem.schema import *
@@ -50,6 +50,24 @@ class OrderAPI:
             return 201, order
         return 400, {"message": "Owner or Employee mismatch with Restaurant"}
     
+    @route.patch("",response={201:OrderWithoutItemsSchema,code400and500:MessageSchema},summary="Update name, phone or description of order")
+    def update_order(self,request,body:PatchDict[OrderUpdateSchema],order_id:int):
+        order=Order.objects.get(id=order_id)
+        if OwnerOrEmployeeCheck(order.restaurant,request):
+            for key, value in body.items():
+                setattr(order, key, value)
+            order.save()
+            return 201,order
+        return 400, {"message": "Owner or Employee mismatch with Restaurant"}
+    
+    @route.delete("",response={200:MessageSchema,code400and500:MessageSchema},summary="Delete an order")
+    def delete_order(self,request,order_id:int):
+        order=Order.objects.get(id=order_id)
+        if OwnerOrEmployeeCheck(order.restaurant,request):
+            message=f'{order.name}"s order has been deleted'
+            order.delete()
+            return 200,{'message':message} 
+    
     @route.post("/single",response={201:OrderSchema,code400and500:MessageSchema},summary="Add single items to existing order ")
     def add_single_order(self,request,body:SingleOrderCreateSchema):
         data=body.model_dump()
@@ -65,13 +83,14 @@ class OrderAPI:
             return 400,{'message':"Item does not belong to the restaurant"}
         return 400, {"message": "Owner or Employee mismatch with Restaurant"}
     
-    @route.delete("/item",response={200:MessageSchema,code400and500:MessageSchema},summary="Delete item from a order")
-    def delete_item(self,request,order_row_id:int,order_id:int):
+    @route.delete("/item",response={200:MessageSchema,code400and500:MessageSchema},summary="Delete an item from a order")
+    def delete_item(self,request,items_id:int,order_id:int):
         order=Order.objects.get(id=order_id)
-        orderRow=OrderRow.objects.get(id=order_row_id)
-        order.totalPrice-=orderRow.item.price
-        order.items.remove(orderRow)
-        orderRow.delete()
-        if len(order.items)==0:
-            order.delete()
-        
+        if OwnerOrEmployeeCheck(order.restaurant,request):
+            orderRow=OrderRow.objects.get(id=items_id)
+            order.totalPrice-=orderRow.item.price
+            order.items.remove(orderRow)
+            orderRow.delete()
+            if order.items.count()==0:
+                order.delete()
+        return 400, {"message": "Owner or Employee mismatch with Restaurant"}

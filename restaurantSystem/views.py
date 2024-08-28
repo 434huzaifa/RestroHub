@@ -53,10 +53,9 @@ class RestaurantAPI:
             500: MessageSchema,
         },
         summary="Get single restaurant information",
-        auth=None,
         permissions=[AllowAny]
     )
-    def get(self,restaurant_id: int):
+    def get_a_restaurant(self,restaurant_id: int):
         restaurant = Restaurant.objects.get(
             id=restaurant_id
         )
@@ -65,14 +64,11 @@ class RestaurantAPI:
     @route.delete("", response={200: MessageSchema, code400and500: MessageSchema})
     def delete_restaurant(self, request: HttpRequest, restaurant_id: int = None):
         if restaurant_id:
-            restaurant = Restaurant.objects.get(
-                id=restaurant_id,
-            )
-            if not restaurant.owners.filter(id=request.user.id).exists():
-                return 400,{"message":"You are not owner of this retaurent"}
-            message = f'{restaurant.name}"s data deleted'
-            restaurant.delete()
-            return 200, {"message": message}
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+            if restaurant.owners.filter(id=request.user.id).exists():
+                message = f'{restaurant.name}"s data deleted'
+                return 200, {"message": message}
+            return 400,{"message":"You are not owner of this retaurent"}
         return 400, {"message": "Invalid id!"}
 
     @route.patch(

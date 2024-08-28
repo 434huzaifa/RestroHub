@@ -75,28 +75,33 @@ def logout(
     return 200, {"message": "Logout Successfull"}
 
 
+def PrintErrorWithTrace():
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    error_message = f"{exc_type.__name__}: {str(exc_value)}"
+    error_details = traceback.format_exc()
+    ic("Error occurred:")
+    print(error_message)
+    ic("Detailed error trace:")
+    print(error_details)
+
+
 @app.exception_handler(ObjectDoesNotExist)
 def ObjectNotFound(request, exce):
+    PrintErrorWithTrace()
     return app.create_response(
-        request, {"message": f"ObjectDoesNotExist:{exce}"}, status=404
+        request, {"message": f"Invalid id for {str(exce).split(" ")[0]} ＞︿＜"}, status=404
     )
 
 
 @app.exception_handler(Exception)
 def GlobalException(request, exce):
-    exc_type, exc_value, exc_traceback = sys.exc_info()
-    error_message = f"{exc_type.__name__}: {str(exc_value)}"
-    error_details = traceback.format_exc()
-
-    ic("Error occurred:")
-    print(error_message)
-    ic("Detailed error trace:")
-    print(error_details)
-    return app.create_response(request, {"message": f"Exception:{exce}"}, status=500)
+    PrintErrorWithTrace()
+    return app.create_response(request, {"message": f"Erro: {exce}. ¯\_(ツ)_/¯"}, status=500)
 
 
 @app.exception_handler(ExpiredSignatureError)
 def JwtExpire(request, exce):
+    PrintErrorWithTrace()
     return app.create_response(
         request, {"message": f"Expired:{exce}.excute /login api again"}, status=400
     )
@@ -104,6 +109,7 @@ def JwtExpire(request, exce):
 
 @app.exception_handler(InvalidTokenError)
 def JwtInvalidToken(request, exce):
+    PrintErrorWithTrace()
     return app.create_response(
         request,
         {"message": f"Invalid Token:{exce}.excute /login api again"},

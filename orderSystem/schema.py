@@ -14,7 +14,13 @@ class OrderSchema(ModelSchema):
     class Meta:
         model=Order
         fields='__all__'
-        
+
+class OrderWithoutItemsSchema(ModelSchema):
+    class Meta:
+        model=Order
+        fields='__all__'
+        exclude=['items']
+
 class OrderRowCreateSchema(Schema):
     item_id:int=Field(gt=0,examples=[1])
     quantity:int=Field(gt=0,examples=[2])
@@ -33,4 +39,8 @@ class SingleOrderCreateSchema(Schema):
     restaurant_id:int=Field(examples=[1])
     menu_id:int=Field(examples=[1])
     items:OrderRowCreateSchema
-    
+
+class OrderUpdateSchema(Schema):
+    name:str=Field(max_length=100,examples=["Huzaifa"])
+    phone:str=Field(max_length=100,examples=["112312312"])
+    description:str|None="This is a description....."

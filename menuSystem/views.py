@@ -17,24 +17,23 @@ class MenuApi:
     @route.post("", response={201: MenuSchema, code400and500: MessageSchema})
     def create_menu(self, request: HttpRequest, body: MenuCreateSchema):
         data = body.model_dump()
-        restaurant = Restaurant.objects.get(
-            id=data.get("restaurant_id")
-        )
+        restaurant = Restaurant.objects.get(id=data.get("restaurant_id"))
+        if restaurant.owners.filter(id=request.user.id).exists():
+            menu = Menu(name=data.get("name"))
+            menu.save()
+            t_items=[]
+            for i in data.get("items"):
+                item = Item(name=i.get("name"), price=i.get("price"))
+                if i.get("description",None):
+                    item.description=i.get("description")
+                item.save()
+                t_items.append(item)
+            menu.items.set(t_items)
+            menu.save()
+            restaurant.menus.add(menu)
+            return 201, menu
+        return 400,{"message":"You are not owner of this restaurant"}
         
-        if not restaurant.owners.filter(id=request.user.id).exists():
-            return 400,{"message":"You are not owner of this restaurant"}
-        menu = Menu( name=data.get("name"))
-        menu.save()
-        
-        for i in data.get("items"):
-            item = Item(name=i.get("name"), price=i.get("price"))
-            if i.get("description",None):
-                item.description=i.get("description")
-            item.save()
-            menu.items.add(item)
-        menu.save()
-        restaurant.menus.add(menu)
-        return 201, menu
 
     @route.patch(
         "",
@@ -63,17 +62,18 @@ class MenuApi:
         response={200: MessageSchema, code400and500: MessageSchema},
         summary="Delete a menu of a restaurant",
     )
-    def change_menu_name(
+    def delete_menu(
         self,
         request,
         menu_id: int,
         restaurant_id: int,
     ):
         restaurant=Restaurant.objects.get(id=restaurant_id)
-        
         if restaurant.owners.filter(id=request.user.id).exists():
             menu=restaurant.menus.get(id=menu_id)
             message=f'{menu.name} has been deleted!'  
+            for i in menu.items.filter():
+                i.delete()
             menu.delete()
             return 200, {"message":message}
         return 400,{"message":"You are not owner of this restaurant"}
@@ -116,7 +116,7 @@ class MenuApi:
         if restaurant.owners.filter(id=request.user.id).exists():
             item.delete()
             message = f"{item.name} deleted from menu!"
-            if len(menu.items)==0:
+            if menu.items.count()==0:
                 menu.delete()
             return 200, {"message": message}
         return 400,{"message":"You are not owner of this retaurant"}
