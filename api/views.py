@@ -32,7 +32,7 @@ app = NinjaExtraAPI(
 @app.post(
     "/login",
     tags=["Authorization"],
-    description="For testing purpose. Enter username and password it will automatically set key in cookies. \n\nusername: ` owner1 `\n\npassword:` q `",
+    description="For testing purpose. Enter username and password it will automatically set key in cookies.\n\n**Owner**-->username: ` owner1 `,password:` q `\n\n**Employee**-->username: ` employee1 `,password:` q `",
     summary="Use this API first to use locked API.",
     response={200: LoginResponseSchema, code400and500: MessageSchema},
 )

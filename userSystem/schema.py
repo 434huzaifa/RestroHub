@@ -1,7 +1,7 @@
 from ninja import ModelSchema, Schema, Field
 
 from .models import *
-from restaurantSystem.schema import RestaurantSchema
+from restaurantSystem.schema import RestaurantSchema,RestaurantIdNameSchema
 from django.contrib.auth.models import User
 from icecream import ic
 
@@ -22,7 +22,7 @@ class ProfilesSchema(ModelSchema):
 
 class OwnerSchema(ModelSchema):
     profile: ProfilesSchema
-    restaurants: list[RestaurantSchema]
+    restaurants: list[RestaurantIdNameSchema]
 
     class Meta:
         model = Owner
@@ -40,7 +40,7 @@ class OwnerSchemaWithoutRestaurants(ModelSchema):
 
 class EmployeeSchema(ModelSchema):
     profile: ProfilesSchema
-    restaurant: RestaurantSchema = None
+    restaurant: RestaurantIdNameSchema = None
 
     class Meta:
         model = Employee

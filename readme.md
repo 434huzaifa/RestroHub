@@ -9,6 +9,7 @@
 - Stripe
 - JWT
 - Sqlite3
+- Pipenv
 
 ### To run this application locally
 
